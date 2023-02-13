@@ -23,7 +23,7 @@ app.get("/", (req, res) => {
         .then(meja => {
             res.json({
                 count: meja.length,
-                meja: meja
+                meja: meja,
             })
         })
         .catch(error => {
@@ -56,7 +56,7 @@ app.get("/id_meja/:id_meja",async (req, res) => {
 app.post("/", (req,res) => {
     let data = {
         meja : req.body.meja,
-        // available : req.body.available
+        status : req.body.status
     }
  
     meja.create(data)
@@ -79,6 +79,7 @@ app.put("/:id", (req,res) => {
     }
     let data = {
         meja : req.body.meja,
+        status : req.body.status
     }
     meja.update(data, {where: param})
         .then(result => {
@@ -118,12 +119,12 @@ app.delete("/:id", (req,res) => {
         where: {
             [Op.or]: [
                 {
-                    no_meja: {
+                    meja: {
                         [Op.like]: `%${keyword}%`
                     }
                 },
                 {
-                    available: {
+                    status: {
                         [Op.like]: `%${keyword}%`
                     }
                 }

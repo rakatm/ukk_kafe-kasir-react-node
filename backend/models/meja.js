@@ -23,7 +23,8 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true
     },
-    meja: DataTypes.STRING
+    meja: DataTypes.STRING,
+    status: DataTypes.ENUM('available', 'not available'),
   }, {
     sequelize,
     modelName: 'meja',

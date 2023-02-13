@@ -12,6 +12,9 @@ module.exports = {
       meja: {
         type: Sequelize.STRING
       },
+      status: {
+        type: Sequelize.ENUM('available', 'not available')
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
