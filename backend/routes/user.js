@@ -9,9 +9,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
 //import multer
-const multer = require("multer")
-const path = require("path")
-const fs = require("fs")
+// const multer = require("multer")
+// const path = require("path")
+// const fs = require("fs")
 
 //import model
 const model = require('../models/index');

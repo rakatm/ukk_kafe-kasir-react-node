@@ -32,7 +32,6 @@ app.get("/", async (req, res) =>{
     })
 })
 
-// !----------------------------------------------------------------------------------------------------
 app.get("/:id", (req, res) => {
     let param = ({id_transaksi: req.params.id})
     transaksi.findOne({where:param})
@@ -41,6 +40,7 @@ app.get("/:id", (req, res) => {
             data: result
         })
     })
+    
     .catch(err => {
         res.json({
             msg: err.massage
@@ -48,31 +48,31 @@ app.get("/:id", (req, res) => {
     })
 })
 
-// app.get ("/id/:id_transaksi", async (req,res) => {
-//     let param = { id_transaksi: req.params.id_transaksi}
-//     let result = await transaksi.findAll({
-//         where: param,
-//         include: [
-//             "user",
-//             "meja",
-//             {
-//                 model: models.detail_transaksi,
-//                 as : "detail_transaksi",
-//                 include: ["menu"]
-//             }
-//         ]
+app.get ("/id/:id_transaksi", async (req,res) => {
+    let param = { id_transaksi: req.params.id_transaksi}
+    let result = await transaksi.findAll({
+        where: param,
+        include: [
+            "user",
+            "meja",
+            {
+                model: models.detail_transaksi,
+                as : "detail_transaksi",
+                include: ["menu"]
+            }
+        ]
 
-//     })
-//     let sumTotal = await transaksi.sum("total", {
-//         where: param
-//     })
-//     res.json({
-//         transaksibyid_transaksi: result,
-//         sumTotal: sumTotal
-//     })
-// })
+    })
+    let sumTotal = await transaksi.sum("total", {
+        where: param
+    })
+    res.json({
+        transaksibyid_transaksi: result,
+        sumTotal: sumTotal
+    })
+})
 // !----------------------------------------------------------------------------------------------------
-//get transaksi by user id 
+// get transaksi by user id 
 app.get ("/byUser/:id_user", async (req,res) => {
     let param = { id_user: req.params.id_user}
     let result = await transaksi.findAll({
@@ -99,6 +99,7 @@ app.get ("/byUser/:id_user", async (req,res) => {
     })
 })
 
+// !----------------------------------------------------------------------------------------------------
 
 app.post("/", async (req,res) => {
     let current = new Date().toISOString().split('T')[0]
@@ -107,7 +108,8 @@ app.post("/", async (req,res) => {
         id_user: req.body.id_user,//siapa customer yang beli
         id_meja: req.body.id_meja,
         nama_pelanggan: req.body.nama_pelanggan,
-        status: req.body.status
+        status: req.body.status,
+        total: req.body.total,
     }
     transaksi.create(data)
     .then(result => {
