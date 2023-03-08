@@ -30,7 +30,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     id_transaksi: DataTypes.INTEGER,
     id_menu: DataTypes.INTEGER,
-    harga: DataTypes.INTEGER
+    harga: DataTypes.DOUBLE,
+    qty: DataTypes.DOUBLE,
+    subtotal: DataTypes.DOUBLE,
   }, {
     sequelize,
     modelName: 'detail_transaksi',

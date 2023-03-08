@@ -20,7 +20,10 @@ app.use("/menu", menu)
 const meja = require('./routes/meja');
 app.use("/meja", meja)
 
-const transaksi = require('./routes/transaksi');
+// const transaksi = require('./routes/transaksi');
+// app.use("/transaksi", transaksi)
+
+const transaksi = require('./routes/transaksinew');
 app.use("/transaksi", transaksi)
 
 

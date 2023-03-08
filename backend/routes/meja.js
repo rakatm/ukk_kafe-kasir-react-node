@@ -137,6 +137,5 @@ app.delete("/:id", (req,res) => {
     })
 
 
-//video dan pembelajaran, bahas, kasus, game, kuis
-//mu72e4
+
 module.exports = app;
