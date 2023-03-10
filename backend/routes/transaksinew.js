@@ -18,11 +18,41 @@ const Sequelize = require("sequelize")
 const Op = Sequelize.Op
 
 //import auth 
+// const auth = require("../auth")
+// const jwt = require("jsonwebtoken")
+// const SECRET_KEY = "bruh"
+// !----------------------------------------------------------------------------------------------------
+const jwt = require('jsonwebtoken');
+const SECRET_KEY = "BelajarNodeJSItuMenyengankan"
 const auth = require("../auth")
-const jwt = require("jsonwebtoken")
-const SECRET_KEY = "bruh"
+
+isKasir = (req, res, next) => {
+    let token = req.headers.authorization.split(" ")[1]
+    let decoded = jwt.verify(token, SECRET_KEY)
+    if (decoded.role === "kasir") {
+        next()
+    } else {
+        res.json({
+            message: "You are not authorized to access this resource"
+        })
+    }
+}
+isManajer = (req, res, next) => {
+    let token = req.headers.authorization.split(" ")[1]
+    let decoded = jwt.verify(token, SECRET_KEY)
+    if (decoded.role === "manajer") {
+        next()
+    } else {
+        res.json({
+            message: "You are not authorized to access this resource"
+        })
+    }
+}
+
+// !----------------------------------------------------------------------------------------------------
+
 //JIKA BELUM LUNAS TANGGAL BAYAR TETEP NULL/LANGSUNG TERISI NULL
-app.get("/", async (req, res) =>{
+app.get("/", auth, isKasir, async (req, res) =>{
     let result = await transaksi.findAll({
         include: [
             "user",
@@ -41,7 +71,7 @@ app.get("/", async (req, res) =>{
     })
 })
 
-app.get("/id/:id_transaksi", async (req, res) => {
+app.get("/id/:id_transaksi", auth, isKasir, async (req, res) => {
     let param = { id_transaksi: req.params.id_transaksi }
     let result = await transaksi.findAll({
         where: param,
@@ -67,7 +97,7 @@ app.get("/id/:id_transaksi", async (req, res) => {
 
 // !----------------------------------------------------------------------------------------------------
 // get transaksi by user id 
-app.get ("/byUser/:id_user", async (req,res) => {
+app.get ("/byUser/:id_user", auth, isKasir, async (req,res) => {
     let param = { id_user: req.params.id_user}
     let result = await transaksi.findAll({
         where: param,
@@ -96,7 +126,7 @@ app.get ("/byUser/:id_user", async (req,res) => {
 // !----------------------------------------------------------------------------------------------------
 
 //tambah transaksi old
-app.post("/", async (req,res) => {
+app.post("/", auth, isKasir, async (req,res) => {
     let current = new Date().toISOString().split('T')[0]
     let data = {
         tgl_transaksi: current,//current : 
@@ -143,7 +173,7 @@ app.post("/", async (req,res) => {
 // !----------------------------------------------------------------------------------------------------
 
 // update status transaksi
-app.post("/update/:id_transaksi", async (req, res) => {
+app.post("/update/:id_transaksi", auth, isKasir, async (req, res) => {
     let param = { id_transaksi: req.params.id_transaksi }
     let data = {
         status: req.body.status
@@ -210,7 +240,7 @@ const checkIsKasir = (req, res, next) => {
 // !----------------------------------------------------------------------------------------------------
 
 //tambah transaksi new
-app.post("/tambah/:id_meja",  async (req, res) => {
+app.post("/tambah/:id_meja",  auth, isKasir, async (req, res) => {
   const userId = req.body.id_user;
 // Periksa apakah pengguna memiliki role sebagai Kasir
 const userCek = await user.findOne({ where: { id_user: userId } });
@@ -373,7 +403,7 @@ if (!userCek || userCek.role !== "kasir") {
 
 // !----------------------------------------------------------------------------------------------------
 
-app.delete("/delete/:id_transaksi", async (req, res) =>{
+app.delete("/delete/:id_transaksi", auth, isKasir, async (req, res) =>{
     let param = { id_transaksi: req.params.id_transaksi}
     try {
         await detail_transaksi.destroy({where: param})//menghapus detail dulu atau anak 
@@ -391,7 +421,7 @@ app.delete("/delete/:id_transaksi", async (req, res) =>{
 // !----------------------------------------------------------------------------------------------------
 
 // Search transaksi by nama user
-app.post("/search", async (req, res) => {
+app.post("/search", auth, isManajer, async (req, res) => {
   let keyword = req.body.keyword
   let result = await transaksi.findAll({
       where: {
@@ -477,7 +507,7 @@ app.post("/search", async (req, res) => {
 // !----------------------------------------------------------------------------------------------------
 
 //get data transaksi by date
-app.post("/date", async (req, res) => {
+app.post("/date", auth, isManajer, async (req, res) => {
   let start = new Date(req.body.start)
   let end = new Date(req.body.end)
 
@@ -524,7 +554,7 @@ app.post("/date", async (req, res) => {
 // !----------------------------------------------------------------------------------------------------
 
 //jumlah transaksi total hari ini 
-// app.post("/hariini", async (req, res) => {
+// app.post("/hariini", auth, isKasir, async (req, res) => {
 //   let today = new Date();
 //   today.setHours(0, 0, 0, 0);
 

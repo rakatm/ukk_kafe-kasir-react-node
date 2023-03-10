@@ -21,6 +21,23 @@ const storage = multer.diskStorage({
     }
 })
 let upload = multer({ storage: storage })
+// !----------------------------------------------------------------------------------------------------
+const jwt = require('jsonwebtoken');
+const SECRET_KEY = "BelajarNodeJSItuMenyengankan"
+const auth = require("../auth")
+
+function isAdmin (req, res, next) {
+    let token = req.headers.authorization.split(" ")[1]
+    let decoded = jwt.verify(token, SECRET_KEY)
+    if (decoded.role === "admin") {
+        next()
+    } else {
+        res.json({
+            message: "You are not authorized to access this resource"
+        })
+    }
+}
+// !----------------------------------------------------------------------------------------------------
 
 //import model
 const models = require('../models/index');
@@ -34,8 +51,8 @@ const Op = Sequelize.Op
 
 //GET MENU , METHOD: GET, FUNCTION: findAll
 //menampilkan seluruh data MENU
-app.get("/", (req, res) => {
-    menu.findAll()
+app.get("/", auth, isAdmin, async (req, res) => {
+    await menu.findAll()
         .then(menu => {
             res.json({
                 count: menu.length,
@@ -50,8 +67,8 @@ app.get("/", (req, res) => {
 })
 
 //GET MENU by ID, METHOD: GET, FUNCTION: findOne
-app.get("/:id_menu", (req, res) => {
-    menu.findOne({ where: { id_menu: req.params.id_menu } })
+app.get("/:id_menu", auth, isAdmin, async(req, res) => {
+    await menu.findOne({ where: { id_menu: req.params.id_menu } })
         .then(result => {
             res.json({
                 menu: result
@@ -67,7 +84,7 @@ app.get("/:id_menu", (req, res) => {
 
 // !----------------------------------------------------------------------------------------------------
 
-app.post("/", upload.single("gambar"), (req, res) =>{
+app.post("/", auth, isAdmin,upload.single("gambar"), async(req, res) =>{
     if (!req.file) {
         res.json({
             message: "No uploaded file"
@@ -80,7 +97,7 @@ app.post("/", upload.single("gambar"), (req, res) =>{
             gambar: req.file.filename,
             harga: req.body.harga,
         }
-        menu.create(data)
+        await menu.create(data)
         .then(result => {
             res.json({
                 message: "data has been inserted"
@@ -96,7 +113,7 @@ app.post("/", upload.single("gambar"), (req, res) =>{
 
 // !----------------------------------------------------------------------------------------------------
 
-app.put("/:id", upload.single("gambar"), (req, res) => {
+app.put("/:id", auth, isAdmin,upload.single("gambar"), (req, res) => {
     let param = { id_menu: req.params.id }
     let data = {
         nama_menu: req.body.nama_menu,
@@ -136,7 +153,7 @@ app.put("/:id", upload.single("gambar"), (req, res) => {
 
 // !----------------------------------------------------------------------------------------------------
 
-app.delete("/:id", async (req, res) => {
+app.delete("/:id", auth, isAdmin, async (req, res) => {
     try {
         let param = { id_menu: req.params.id }
         let result = await menu.findOne({ where: param })
@@ -144,10 +161,10 @@ app.delete("/:id", async (req, res) => {
 
         //delete oldfile
         let dir = path.join(__dirname, "../gambar/menu", oldFileName)
-        fs.unlink(dir, err => console.log(err))
+        await fs.unlink(dir, err => console.log(err))
 
         //delete data
-        menu.destroy({ where: param })
+        await menu.destroy({ where: param })
             .then(result => {
                 res.json({
                     message: "Data has been deleted",
@@ -169,7 +186,7 @@ app.delete("/:id", async (req, res) => {
 // !----------------------------------------------------------------------------------------------------
 //search for menu, method:post
 
-app.post("/search", async (req, res) => {
+app.post("/search", auth, isAdmin, async (req, res) => {
     let keyword = req.body.keyword
     let result = await menu.findAll({
         where: {
@@ -209,30 +226,30 @@ app.post("/search", async (req, res) => {
 
 // !----------------------------------------------------------------------------------------------------
 
-//mendapatkan menu terlaris
-app.get("/terlaris", async (req, res) => {
-    try {
-      const result = await detail_transaksi.findAll({
-        attributes: [
-          'id_menu',
-          [models.sequelize.fn('sum', models.sequelize.col('qty')), 'total_penjualan']
-        ],
-        include: [
-          {
-            model: menu,
-            as: 'menu',
-            // where: { jenis: 'makanan' },
-            attributes: ['nama_menu']
-          }
-        ],
-        group: ['id_menu'],
-        order: [[models.sequelize.fn('sum', models.sequelize.col('qty')), 'DESC']]
-      });
-      res.status(200).json({ menu: result });
-    } catch (error) {
-      console.log(error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
+// //mendapatkan menu terlaris
+// app.get("/terlaris", async (req, res) => {
+//     try {
+//       const result = await detail_transaksi.findAll({
+//         attributes: [
+//           'id_menu',
+//           [models.sequelize.fn('sum', models.sequelize.col('qty')), 'total_penjualan']
+//         ],
+//         include: [
+//           {
+//             model: menu,
+//             as: 'menu',
+//             // where: { jenis: 'makanan' },
+//             attributes: ['nama_menu']
+//           }
+//         ],
+//         group: ['id_menu'],
+//         order: [[models.sequelize.fn('sum', models.sequelize.col('qty')), 'DESC']]
+//       });
+//       res.status(200).json({ menu: result });
+//     } catch (error) {
+//       console.log(error);
+//       res.status(500).json({ message: 'Internal server error' });
+//     }
+//   });
 
 module.exports = app;

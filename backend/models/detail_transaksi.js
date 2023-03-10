@@ -28,8 +28,14 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true
     },
-    id_transaksi: DataTypes.INTEGER,
-    id_menu: DataTypes.INTEGER,
+    id_transaksi: {
+      type: DataTypes.INTEGER, 
+      allowNull: false
+    },
+    id_menu: {
+      type: DataTypes.INTEGER, 
+      allowNull: false
+    },
     harga: DataTypes.DOUBLE,
     qty: DataTypes.DOUBLE,
     subtotal: DataTypes.DOUBLE,

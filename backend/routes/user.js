@@ -18,9 +18,9 @@ const model = require('../models/index');
 const user = model.user
 
 //import auth
-const auth = require("../auth")
-const jwt = require("jsonwebtoken")
-const SECRET_KEY = "BelajarNodeJSItuMenyengankan"
+// const auth = require("../auth")
+// const jwt = require("jsonwebtoken")
+// const SECRET_KEY = "BelajarNodeJSItuMenyengankan"
 
 
 //membuat konfigurasi diskStorage multer
@@ -39,8 +39,26 @@ const SECRET_KEY = "BelajarNodeJSItuMenyengankan"
 const Sequelize = require("sequelize")
 const Op = Sequelize.Op
 
+// !----------------------------------------------------------------------------------------------------
+const jwt = require('jsonwebtoken');
+const SECRET_KEY = "BelajarNodeJSItuMenyengankan"
+const auth = require("../auth")
+
+function isAdmin (req, res, next) {
+    let token = req.headers.authorization.split(" ")[1]
+    let decoded = jwt.verify(token, SECRET_KEY)
+    if (decoded.role === "admin") {
+        next()
+    } else {
+        res.json({
+            message: "You are not authorized to access this resource"
+        })
+    }
+}
+// !----------------------------------------------------------------------------------------------------
+
 //endpoint menampilkan semua data user, method: GET, function: findAll()
-app.get("/", auth, (req,res) => {
+app.get("/", auth, isAdmin, async(req,res) => {
   user.findAll()
       .then(result => {
           res.json({
@@ -53,9 +71,9 @@ app.get("/", auth, (req,res) => {
           })
       })
 })
-
+// !----------------------------------------------------------------------------------------------------
 //GET user by ID, METHOD: GET, FUNCTION: findOne
-app.get("/id_user/:id_user",async (req, res) => {
+app.get("/id_user/:id_user",auth, isAdmin, async (req, res) => {
     let param = {
         id_user: req.params.id_user
     }
@@ -71,9 +89,9 @@ app.get("/id_user/:id_user",async (req, res) => {
         })
     })   
 })
-
+// !----------------------------------------------------------------------------------------------------
 //endpoint untuk menyimpan data user, METHOD: POST, function: create
-app.post("/", (req,res) => {
+app.post("/", auth, isAdmin, async(req,res) => {
   let data = {
       nama_user : req.body.nama_user,
       role : req.body.role,
@@ -95,7 +113,7 @@ app.post("/", (req,res) => {
 
 
 //endpoint mengupdate data user, METHOD: PUT, function:update
-app.put("/:id", (req,res) => {
+app.put("/:id", auth, isAdmin, async(req,res) => {
     let param = {
         id_user : req.params.id
     }
@@ -119,9 +137,9 @@ app.put("/:id", (req,res) => {
 })
 
 
-
+// !----------------------------------------------------------------------------------------------------
 //endpoint menghapus data user, METHOD: DELETE, function: destroy
-app.delete("/:id", (req,res) => {
+app.delete("/:id", auth, isAdmin, async(req,res) => {
   let param = {
     id_user : req.params.id
   }
@@ -139,7 +157,7 @@ app.delete("/:id", (req,res) => {
 })
 
 //search user by name, address, : method : post
-app.post("/search", async (req,res)=>{
+app.post("/search", auth, isAdmin, async (req,res)=>{
     let keyword = req.body.keyword
     let result = await user.findAll({
         
@@ -194,6 +212,37 @@ app.post("/auth", async (req,res) => {
         })
     }
 })
+
+// !----------------------------------------------------------------------------------------------------
+
+// Logout route
+app.post('/logout', (req, res) => {
+    const token = req.cookies.jwt; // Assuming the token is stored in a cookie
+  
+    // Verify the token and get the user id
+    const decodedToken = jwt.verify(token, SECRET_KEY);
+    const userId = decodedToken.id;
+  
+    // Remove the token from the MySQL database
+    User.update({ token: null }, { where: { id: userId } })
+      .then((result) => {
+        if (result[0] === 0) {
+          return res.status(404).json({ message: 'User not found' });
+        }
+  
+        // Remove the token from client-side storage
+        res.clearCookie('jwt'); // For example, if using cookies
+        // or
+        localStorage.removeItem('jwt'); // For example, if using local storage
+  
+        // Send a response indicating successful logout
+        res.json({ message: 'Logout successful' });
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).json({ message: 'Error occurred while removing token' });
+      });
+  });
 
 
 module.exports = app
