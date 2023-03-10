@@ -231,9 +231,9 @@ app.post('/logout', (req, res) => {
         }
   
         // Remove the token from client-side storage
-        res.clearCookie('jwt'); // For example, if using cookies
+        res.clearCookie(token); // For example, if using cookies
         // or
-        localStorage.removeItem('jwt'); // For example, if using local storage
+        localStorage.removeItem(token); // For example, if using local storage
   
         // Send a response indicating successful logout
         res.json({ message: 'Logout successful' });

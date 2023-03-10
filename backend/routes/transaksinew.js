@@ -26,7 +26,7 @@ const jwt = require('jsonwebtoken');
 const SECRET_KEY = "BelajarNodeJSItuMenyengankan"
 const auth = require("../auth")
 
-isKasir = (req, res, next) => {
+function isKasir (req, res, next) {
     let token = req.headers.authorization.split(" ")[1]
     let decoded = jwt.verify(token, SECRET_KEY)
     if (decoded.role === "kasir") {
@@ -37,7 +37,7 @@ isKasir = (req, res, next) => {
         })
     }
 }
-isManajer = (req, res, next) => {
+function isManajer (req, res, next) {
     let token = req.headers.authorization.split(" ")[1]
     let decoded = jwt.verify(token, SECRET_KEY)
     if (decoded.role === "manajer") {
