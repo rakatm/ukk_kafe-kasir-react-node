@@ -26,40 +26,4 @@ auth = (req, res, next) => {
     }
 }
 
-// isAdmin = (req, res, next) => {
-//     let token = req.headers.authorization.split(" ")[1]
-//     let decoded = jwt.verify(token, SECRET_KEY)
-//     if (decoded.role === "admin") {
-//         next()
-//     } else {
-//         res.json({
-//             message: "You are not authorized to access this resource"
-//         })
-//     }
-// }
-
-// isManajer = (req, res, next) => {
-//     let token = req.headers.authorization.split(" ")[1]
-//     let decoded = jwt.verify(token, SECRET_KEY)
-//     if (decoded.role === "manajer") {
-//         next()
-//     } else {
-//         res.json({
-//             message: "You are not authorized to access this resource"
-//         })
-//     }
-// }
-
-// isKasir = (req, res, next) => {
-//     let token = req.headers.authorization.split(" ")[1]
-//     let decoded = jwt.verify(token, SECRET_KEY)
-//     if (decoded.role === "kasir") {
-//         next()
-//     } else {
-//         res.json({
-//             message: "You are not authorized to access this resource"
-//         })
-//     }
-// }
-
 module.exports = auth

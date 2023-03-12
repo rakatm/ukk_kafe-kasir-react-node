@@ -8,9 +8,32 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
+//import multer
+// const multer = require("multer")
+// const path = require("path")
+// const fs = require("fs")
+
 //import model
 const model = require('../models/index');
 const user = model.user
+
+//import auth
+// const auth = require("../auth")
+// const jwt = require("jsonwebtoken")
+// const SECRET_KEY = "BelajarNodeJSItuMenyengankan"
+
+
+//membuat konfigurasi diskStorage multer
+//config storage image
+// const storage = multer.diskStorage({
+//     destination:(req,file,cb) => {
+//         cb(null,"./image/user")
+//     },
+//     filename: (req,file,cb) => {
+//         cb(null, "img-" + Date.now() + path.extname(file.originalname))
+//     }
+// })
+// let upload = multer({storage: storage})
 
 //import sequelize op
 const Sequelize = require("sequelize")
@@ -88,7 +111,6 @@ app.post("/", auth, isAdmin, async(req,res) => {
       })
 })
 
-// !----------------------------------------------------------------------------------------------------
 
 //endpoint mengupdate data user, METHOD: PUT, function:update
 app.put("/:id", auth, isAdmin, async(req,res) => {
@@ -133,8 +155,6 @@ app.delete("/:id", auth, isAdmin, async(req,res) => {
           })
       })
 })
-
-// !----------------------------------------------------------------------------------------------------
 
 //search user by name, address, : method : post
 app.post("/search", auth, isAdmin, async (req,res)=>{
@@ -192,6 +212,38 @@ app.post("/auth", async (req,res) => {
         })
     }
 })
+
+// !----------------------------------------------------------------------------------------------------
+
+// Logout route
+app.post('/logout', (req, res) => {
+    const token = req.cookies.jwt; // Assuming the token is stored in a cookie
+  
+    // Verify the token and get the user id
+    const decodedToken = jwt.verify(token, SECRET_KEY);
+    const userId = decodedToken.id;
+  
+    // Remove the token from the MySQL database
+    User.update({ token: null }, { where: { id: userId } })
+      .then((result) => {
+        if (result[0] === 0) {
+          return res.status(404).json({ message: 'User not found' });
+        }
+  
+        // Remove the token from client-side storage
+        res.clearCookie(token); // For example, if using cookies
+        // or
+        localStorage.removeItem(token); // For example, if using local storage
+  
+        // Send a response indicating successful logout
+        res.json({ message: 'Logout successful' });
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).json({ message: 'Error occurred while removing token' });
+      });
+  });
+
 
 module.exports = app
 

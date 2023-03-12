@@ -224,5 +224,32 @@ app.post("/search", auth, isAdmin, async (req, res) => {
     })
 })
 
+// !----------------------------------------------------------------------------------------------------
+
+// //mendapatkan menu terlaris
+// app.get("/terlaris", async (req, res) => {
+//     try {
+//       const result = await detail_transaksi.findAll({
+//         attributes: [
+//           'id_menu',
+//           [models.sequelize.fn('sum', models.sequelize.col('qty')), 'total_penjualan']
+//         ],
+//         include: [
+//           {
+//             model: menu,
+//             as: 'menu',
+//             // where: { jenis: 'makanan' },
+//             attributes: ['nama_menu']
+//           }
+//         ],
+//         group: ['id_menu'],
+//         order: [[models.sequelize.fn('sum', models.sequelize.col('qty')), 'DESC']]
+//       });
+//       res.status(200).json({ menu: result });
+//     } catch (error) {
+//       console.log(error);
+//       res.status(500).json({ message: 'Internal server error' });
+//     }
+//   });
 
 module.exports = app;

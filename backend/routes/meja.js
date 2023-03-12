@@ -18,7 +18,6 @@ const meja = models.meja
 const Sequelize = require("sequelize");
 const Op = Sequelize.Op
 
-// const {auth, isAdmin, isKasir, isManajer} = require("../auth")
 const auth = require("../auth")
 
 function isAdmin (req, res, next) {
@@ -32,6 +31,8 @@ function isAdmin (req, res, next) {
         })
     }
 }
+
+// !----------------------------------------------------------------------------------------------------
 
 //GET MEJA , METHOD: GET, FUNCTION: findAll
 //menampilkan seluruh data MEJA
@@ -49,6 +50,8 @@ app.get("/", auth, isAdmin, async (req, res) => {
             })
         })//jika eror masuk ke blok .catch diambil erornya apa dan ditampilkan errornya
 })
+
+// !----------------------------------------------------------------------------------------------------
 
 //GET meja by ID, METHOD: GET, FUNCTION: findOne
 app.get("/id_meja/:id_meja", auth, isAdmin,async (req, res) => {
@@ -69,6 +72,8 @@ app.get("/id_meja/:id_meja", auth, isAdmin,async (req, res) => {
         //jika eror masuk ke blok .catch diambil erornya apa dan ditampilkan errornya
 })
 
+// !----------------------------------------------------------------------------------------------------
+
 //endpoint untuk menyimpan data meja, METHOD: POST, function: create
 app.post("/", auth, isAdmin, async (req,res) => {
     let data = {
@@ -88,6 +93,8 @@ app.post("/", auth, isAdmin, async (req,res) => {
             })
         })
 })
+
+// !----------------------------------------------------------------------------------------------------
 
 //endpoint mengupdate data meja, METHOD: PUT, function:update
 app.put("/:id", auth, isAdmin, async (req,res) => {
@@ -111,6 +118,8 @@ app.put("/:id", auth, isAdmin, async (req,res) => {
         })
 })
 
+// !----------------------------------------------------------------------------------------------------
+
 //endpoint menghapus data meja, METHOD: DELETE, function: destroy
 app.delete("/:id", auth, isAdmin, async(req,res) => {
     let param = {
@@ -129,29 +138,31 @@ app.delete("/:id", auth, isAdmin, async(req,res) => {
         })
 })
 
+// !----------------------------------------------------------------------------------------------------
+
  //search meja by name & username, method: post
- app.post("/search", auth, isAdmin, async (req,res)=>{
-    let keyword = req.body.keyword
-    let result = await meja.findAll({
-        where: {
-            [Op.or]: [
-                {
-                    meja: {
-                        [Op.like]: `%${keyword}%`
-                    }
-                },
-                {
-                    status: {
-                        [Op.like]: `%${keyword}%`
-                    }
-                }
-            ]
-        }
-    })
-    res.json({
-        meja: result
-    })
-    })
+app.post("/search", auth, isAdmin, async (req,res)=>{
+	let keyword = req.body.keyword
+	let result = await meja.findAll({
+			where: {
+					[Op.or]: [
+							{
+									meja: {
+											[Op.like]: `%${keyword}%`
+									}
+							},
+							{
+									status: {
+											[Op.like]: `%${keyword}%`
+									}
+							}
+					]
+			}
+	})
+	res.json({
+			meja: result
+	})
+})
 
 
 
