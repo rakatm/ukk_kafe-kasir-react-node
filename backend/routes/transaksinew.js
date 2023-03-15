@@ -13,8 +13,6 @@ const user = models.user
 const meja = models.meja
 const detail_transaksi = models.detail_transaksi
 
-const menu = require("../models/menu")
-
 //import sequelize op
 const Sequelize = require("sequelize")
 const Op = Sequelize.Op
@@ -162,10 +160,10 @@ app.post("/tambah/:id_meja",  auth, isKasir, async (req, res) => {
     // Periksa apakah pengguna memiliki role sebagai Kasir
     const userCek = await user.findOne({ where: { id_user: userId } });
     if (!userCek || userCek.role !== "kasir") {
-    return res.status(401).json({
-        message: "Unauthorized access. Only Kasir is allowed to perform this action.",
-    });
-}
+        return res.status(401).json({
+            message: "Unauthorized access. Only Kasir is allowed to perform this action.",
+        });
+    }
 
   let current = new Date().toISOString().split('T')[0]
   let data = {
@@ -174,7 +172,6 @@ app.post("/tambah/:id_meja",  auth, isKasir, async (req, res) => {
       id_meja: req.body.id_meja,
       nama_pelanggan: req.body.nama_pelanggan,
       status: "belum_bayar",
-      total: 0 // inisialisasi nilai total awal
   }
   let param = { id_meja: req.params.id_meja }
 
@@ -241,7 +238,6 @@ app.post("/tambah/:id_meja",  auth, isKasir, async (req, res) => {
       })
     console.log();
 })
-
 
 // !----------------------------------------------------------------------------------------------------
 
